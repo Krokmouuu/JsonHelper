@@ -1,16 +1,77 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
-  <!DOCTYPE html>
-  <html lang="en">
-    <head>
-      <meta charset="UTF-8" />
-      <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-      <link rel="icon" type="image/png" href="/images/json-helper.png" />
-      <title>JSON Viewer with Edit Modes</title>
-    </head>
+    <!-- Primary SEO -->
+    <title>JSON Helper — Visual JSON Editor & Interactive Tree Visualizer</title>
+    <meta name="description" content="JSON Helper is a free online tool to visualize, explore and edit JSON data in real-time. Interactive node graph, live editing, search, undo/redo, zoom and pan. No install required." />
+    <meta name="keywords" content="JSON viewer, JSON editor, JSON visualizer, JSON tree, JSON formatter, JSON explorer, interactive JSON, JSON graph, online JSON tool, JSON helper" />
+    <meta name="author" content="Krokmouuu" />
+    <meta name="robots" content="index, follow" />
+    <link rel="canonical" href="https://json-helper.vercel.app/" />
 
-    <body>
-      <div id="root"></div>
-      <script type="module" src="/src/main.tsx"></script>
-    </body>
-  </html>
-  
+    <!-- Open Graph / Social -->
+    <meta property="og:type" content="website" />
+    <meta property="og:url" content="https://json-helper.vercel.app/" />
+    <meta property="og:title" content="JSON Helper — Visual JSON Editor & Tree Visualizer" />
+    <meta property="og:description" content="Paste your JSON and instantly get an interactive visual graph. Edit values, search keys, undo changes, zoom and pan. Free, instant, no login." />
+    <meta property="og:image" content="https://json-helper.vercel.app/images/json-helper.png" />
+    <meta property="og:image:alt" content="JSON Helper logo" />
+    <meta property="og:site_name" content="JSON Helper" />
+    <meta property="og:locale" content="en_US" />
+
+    <!-- Twitter Card -->
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="JSON Helper — Visual JSON Editor & Tree Visualizer" />
+    <meta name="twitter:description" content="Paste your JSON and instantly get an interactive visual graph. Edit values, search keys, undo changes, zoom and pan. Free, instant, no login." />
+    <meta name="twitter:image" content="https://json-helper.vercel.app/images/json-helper.png" />
+
+    <!-- Favicon -->
+    <link rel="icon" type="image/png" href="/images/json-helper.png" />
+    <link rel="apple-touch-icon" href="/images/json-helper.png" />
+
+    <!-- Schema.org structured data for LLMs and search engines -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "WebApplication",
+      "name": "JSON Helper",
+      "url": "https://json-helper.vercel.app/",
+      "description": "JSON Helper is a free online tool to visualize, explore and edit JSON data in real-time. It renders JSON as an interactive node graph, supports live editing, search, undo/redo, zoom and pan navigation.",
+      "applicationCategory": "DeveloperApplication",
+      "operatingSystem": "Any",
+      "browserRequirements": "Requires a modern web browser with JavaScript enabled",
+      "offers": {
+        "@type": "Offer",
+        "price": "0",
+        "priceCurrency": "USD"
+      },
+      "featureList": [
+        "Interactive JSON tree visualization",
+        "Live JSON editing with real-time sync",
+        "Search and filter by key or value",
+        "Undo and redo support",
+        "Zoom and pan navigation",
+        "Horizontal and vertical tree layouts",
+        "Split view: editor and visualizer side by side",
+        "Session persistence via localStorage",
+        "No account or installation required"
+      ],
+      "author": {
+        "@type": "Person",
+        "name": "Krokmouuu",
+        "url": "https://github.com/Krokmouuu"
+      },
+      "codeRepository": "https://github.com/Krokmouuu/JsonHelper",
+      "keywords": "JSON viewer, JSON editor, JSON visualizer, JSON tree, JSON formatter, JSON explorer, developer tool"
+    }
+    </script>
+  </head>
+
+  <body>
+    <div id="root"></div>
+    <script type="module" src="/src/main.tsx"></script>
+  </body>
+</html>

@@ -3,6 +3,19 @@ import { Header } from "./components/Header";
 import { JsonEditor } from "./components/JsonEditor";
 import { JsonGridView } from "./components/JsonGridView";
 
+function decodeJsonFromUrl(): string | null {
+  try {
+    const params = new URLSearchParams(window.location.search);
+    const encoded = params.get("json");
+    if (!encoded) return null;
+    const decoded = atob(encoded);
+    JSON.parse(decoded);
+    return decoded;
+  } catch {
+    return null;
+  }
+}
+
 const INITIAL_JSON = `{
   "version": "1.0",
   "team": "Atlas",
@@ -90,8 +103,9 @@ export default function App() {
     historyReducer,
     null,
     (): HistoryState => {
+      const fromUrl = decodeJsonFromUrl();
       const initialJson =
-        localStorage.getItem(STORAGE_KEYS.jsonCode) ?? INITIAL_JSON;
+        fromUrl ?? localStorage.getItem(STORAGE_KEYS.jsonCode) ?? INITIAL_JSON;
       return {
         entries: [initialJson],
         index: 0,
@@ -113,6 +127,16 @@ export default function App() {
     dispatchHistory({ type: "REDO" });
   };
 
+  const handleShare = async () => {
+    try {
+      const encoded = btoa(jsonCode);
+      const url = `${window.location.origin}${window.location.pathname}?json=${encoded}`;
+      await navigator.clipboard.writeText(url);
+    } catch {
+      // clipboard not available — silently fail
+    }
+  };
+
   useEffect(() => {
     localStorage.setItem(STORAGE_KEYS.viewMode, viewMode);
   }, [viewMode]);
@@ -128,6 +152,7 @@ export default function App() {
         setViewMode={setViewMode}
         controlsVisible={controlsVisible}
         setControlsVisible={setControlsVisible}
+        onShare={handleShare}
       />
 
       <div className="flex flex-1 overflow-hidden">

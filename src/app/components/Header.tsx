@@ -1,10 +1,12 @@
-import React from "react";
+import React, { useState } from "react";
 import {
   Columns2,
   FileText,
   Workflow,
   Eye,
   EyeOff,
+  Share2,
+  Check,
 } from "lucide-react";
 
 interface HeaderProps {
@@ -12,6 +14,7 @@ interface HeaderProps {
   setViewMode: (mode: 'split' | 'input' | 'visualizer') => void;
   controlsVisible: boolean;
   setControlsVisible: (value: boolean) => void;
+  onShare: () => Promise<void>;
 }
 
 export function Header({
@@ -19,7 +22,16 @@ export function Header({
   setViewMode,
   controlsVisible,
   setControlsVisible,
+  onShare,
 }: HeaderProps) {
+  const [shareCopied, setShareCopied] = useState(false);
+
+  const handleShare = async () => {
+    await onShare();
+    setShareCopied(true);
+    window.setTimeout(() => setShareCopied(false), 2000);
+  };
+
   return (
     <header className="relative flex items-center px-6 border-b border-neutral-800 bg-[#0a0a0a] min-h-[80px]">
       <div className="flex items-center gap-6">
@@ -77,18 +89,27 @@ export function Header({
       </div>
       )}
 
-      <button
-        className="absolute right-6 rounded-full border border-[#ffd60a] p-2 text-[#ffd60a] hover:bg-[#ffd60a]/10 transition-colors"
-        onClick={() => setControlsVisible(!controlsVisible)}
-        title={controlsVisible ? "Hide controls" : "Show controls"}
-        aria-label={controlsVisible ? "Hide controls" : "Show controls"}
-      >
-        {controlsVisible ? (
-          <Eye className="w-5 h-5" />
-        ) : (
-          <EyeOff className="w-5 h-5" />
-        )}
-      </button>
+      <div className="absolute right-6 flex items-center gap-2">
+        <button
+          className={`rounded-full border p-2 transition-all duration-200 ${shareCopied ? "border-green-500/60 text-green-400 bg-green-500/10" : "border-[#ffd60a]/40 text-[#ffd60a] hover:bg-[#ffd60a]/10"}`}
+          onClick={handleShare}
+          title="Copy shareable link"
+        >
+          {shareCopied ? <Check className="w-5 h-5" /> : <Share2 className="w-5 h-5" />}
+        </button>
+        <button
+          className="rounded-full border border-[#ffd60a] p-2 text-[#ffd60a] hover:bg-[#ffd60a]/10 transition-colors"
+          onClick={() => setControlsVisible(!controlsVisible)}
+          title={controlsVisible ? "Hide controls" : "Show controls"}
+          aria-label={controlsVisible ? "Hide controls" : "Show controls"}
+        >
+          {controlsVisible ? (
+            <Eye className="w-5 h-5" />
+          ) : (
+            <EyeOff className="w-5 h-5" />
+          )}
+        </button>
+      </div>
 
     </header>
   );

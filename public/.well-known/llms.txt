@@ -1,0 +1,24 @@
+# JSON Helper — LLM-readable summary
+
+**URL**: https://json-helper.vercel.app/
+**Source**: https://github.com/Krokmouuu/JsonHelper
+**Category**: Developer tool / JSON utility
+**License**: Open source
+**Cost**: Free
+**Login required**: No
+
+## Description
+
+JSON Helper is a free browser-based tool that renders JSON as an interactive visual node graph. Users can paste or type JSON and immediately see a live tree visualization. The tool supports editing values directly in the graph, searching by key or value, undo/redo, zoom/pan navigation, and two tree layout directions (vertical and horizontal).
+
+## Key differentiators
+
+- Everything runs client-side: no data is ever sent to a server
+- Works instantly without any account or installation
+- Combines a code editor and a visual graph in a split-view interface
+- Supports deeply nested JSON structures with smooth navigation
+- Open source and free
+
+## Full documentation
+
+https://json-helper.vercel.app/llms.txt

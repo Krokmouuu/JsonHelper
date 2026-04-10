@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { Copy, Plus } from 'lucide-react';
+import { Copy, Plus, Download, Upload } from 'lucide-react';
 
 interface JsonEditorProps {
   jsonCode: string;
@@ -38,6 +38,41 @@ export function JsonEditor({
   const newMenuRef = useRef<HTMLDivElement>(null);
   const [copyLabel, setCopyLabel] = useState<'Copy' | 'Copied'>('Copy');
   const [isNewMenuOpen, setIsNewMenuOpen] = useState(false);
+
+  const importRef = useRef<HTMLInputElement>(null);
+  const [isDragOver, setIsDragOver] = useState(false);
+
+  const handleExport = () => {
+    const blob = new Blob([jsonCode], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'data.json';
+    a.click();
+    URL.revokeObjectURL(url);
+  };
+
+  const handleImportFile = (file: File) => {
+    if (!file.name.endsWith('.json') && file.type !== 'application/json') return;
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      const text = e.target?.result as string;
+      try {
+        const parsed = JSON.parse(text);
+        setJsonCode(JSON.stringify(parsed, null, 2));
+      } catch {
+        setJsonCode(text);
+      }
+    };
+    reader.readAsText(file);
+  };
+
+  const handleDrop = (e: React.DragEvent) => {
+    e.preventDefault();
+    setIsDragOver(false);
+    const file = e.dataTransfer.files[0];
+    if (file) handleImportFile(file);
+  };
 
   const handleCopy = async () => {
     try {
@@ -131,7 +166,30 @@ export function JsonEditor({
   };
 
   return (
-    <div className="flex flex-col h-full bg-[#0d0d10] border-r border-neutral-800 text-sm">
+    <div
+      className={`flex flex-col h-full bg-[#0d0d10] border-r border-neutral-800 text-sm transition-colors ${isDragOver ? "ring-2 ring-inset ring-[#ffd60a]/50 bg-[#ffd60a]/5" : ""}`}
+      onDragOver={(e) => { e.preventDefault(); setIsDragOver(true); }}
+      onDragLeave={() => setIsDragOver(false)}
+      onDrop={handleDrop}
+    >
+      {isDragOver && (
+        <div className="absolute inset-0 z-50 flex items-center justify-center pointer-events-none">
+          <div className="rounded-2xl border-2 border-dashed border-[#ffd60a]/60 bg-[#0a0a0a]/80 px-10 py-6 text-[#ffd60a] font-semibold text-base backdrop-blur">
+            Drop your JSON file here
+          </div>
+        </div>
+      )}
+      <input
+        ref={importRef}
+        type="file"
+        accept=".json,application/json"
+        className="hidden"
+        onChange={(e) => {
+          const file = e.target.files?.[0];
+          if (file) handleImportFile(file);
+          e.target.value = '';
+        }}
+      />
       <div className="flex justify-between items-center gap-4 p-6 border-b border-neutral-800">
         <div
           className={`shrink-0 text-[11px] px-4 py-1.5 rounded-full uppercase tracking-widest font-bold border shadow-inner ${
@@ -156,6 +214,25 @@ export function JsonEditor({
         </div>
         {controlsVisible && (
         <div className="flex shrink-0 items-center gap-2">
+          <button
+            type="button"
+            className={btnOutline}
+            onClick={() => importRef.current?.click()}
+            title="Import JSON file"
+          >
+            <Upload className={iconSm} />
+            Import
+          </button>
+          <button
+            type="button"
+            className={btnOutline}
+            onClick={handleExport}
+            title="Export as .json"
+            disabled={!isValidJson}
+          >
+            <Download className={iconSm} />
+            Export
+          </button>
           <button
             type="button"
             className={btnOutline}
