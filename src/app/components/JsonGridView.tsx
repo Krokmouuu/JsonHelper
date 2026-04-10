@@ -421,6 +421,26 @@ export function JsonGridView({
     };
   }, []);
 
+  useEffect(() => {
+    const frame = requestAnimationFrame(() => {
+      const container = canvasRef.current;
+      if (!container) return;
+      const rootNode = container.querySelector<HTMLElement>('[data-node-id]');
+      if (!rootNode) return;
+
+      const containerRect = container.getBoundingClientRect();
+      const nodeRect = rootNode.getBoundingClientRect();
+      const nodeCenterX = nodeRect.left + nodeRect.width / 2;
+      const nodeCenterY = nodeRect.top + nodeRect.height / 2;
+      const containerCenterX = containerRect.left + containerRect.width / 2;
+      const containerCenterY = containerRect.top + containerRect.height / 2;
+
+      container.scrollLeft += nodeCenterX - containerCenterX;
+      container.scrollTop += nodeCenterY - containerCenterY;
+    });
+    return () => cancelAnimationFrame(frame);
+  }, [jsonCode]);
+
   const focusNodeById = (nodeId: string) => {
     if (!canvasRef.current) return;
     const container = canvasRef.current;
