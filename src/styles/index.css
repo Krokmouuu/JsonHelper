@@ -1,0 +1,84 @@
+@import "./fonts.css";
+@import "./tailwind.css";
+@import "./theme.css";
+
+button {
+  cursor: pointer;
+}
+
+button:disabled {
+  cursor: not-allowed;
+}
+
+@keyframes connectorFlowHorizontal {
+  from {
+    background-position: 0 0;
+  }
+  to {
+    background-position: 12px 0;
+  }
+}
+
+@keyframes connectorFlowVertical {
+  from {
+    background-position: 0 0;
+  }
+  to {
+    background-position: 0 12px;
+  }
+}
+
+.node-connector-h {
+  height: 1.5px;
+  background-image: repeating-linear-gradient(
+    to right,
+    rgba(196, 255, 14, 0.58) 0 6px,
+    rgba(196, 255, 14, 0) 6px 12px
+  );
+  background-size: 12px 100%;
+  animation: connectorFlowHorizontal 1s linear infinite;
+  will-change: background-position;
+}
+
+.node-connector-h-reverse {
+  animation-direction: reverse;
+}
+
+
+.node-connector-v {
+  width: 1.5px;
+  background-image: repeating-linear-gradient(
+    to bottom,
+    rgba(196, 255, 14, 0.58) 0 6px,
+    rgba(196, 255, 14, 0) 6px 12px
+  );
+  background-size: 100% 12px;
+  animation: connectorFlowVertical 1s linear infinite;
+  will-change: background-position;
+}
+
+.node-connector-v-reverse {
+  animation-direction: reverse;
+}
+
+.color-input-inline {
+  -webkit-appearance: none;
+  appearance: none;
+  border: 0;
+  background: transparent;
+  padding: 0;
+}
+
+.color-input-inline::-webkit-color-swatch-wrapper {
+  padding: 0;
+}
+
+.color-input-inline::-webkit-color-swatch {
+  border: 0;
+  border-radius: 6px;
+}
+
+.color-input-inline::-moz-color-swatch {
+  border: 0;
+  border-radius: 6px;
+}

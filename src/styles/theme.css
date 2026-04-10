@@ -1,0 +1,9 @@
+@layer base {
+  * {
+    @apply border-neutral-800;
+  }
+
+  body {
+    @apply bg-[#0a0a0a] text-neutral-200;
+  }
+}
