@@ -339,6 +339,7 @@ export function JsonGridView({
 
   const resetZoom = () => {
     setZoom(1);
+    hasCenteredRef.current = false;
   };
 
   const handleWheelZoom = (event: React.WheelEvent<HTMLDivElement>) => {
@@ -421,7 +422,16 @@ export function JsonGridView({
     };
   }, []);
 
+  const hasCenteredRef = useRef(false);
   useEffect(() => {
+    hasCenteredRef.current = false;
+  }, []);
+
+  useEffect(() => {
+    if (hasCenteredRef.current) return;
+    if (!parsedData) return;
+    hasCenteredRef.current = true;
+
     const frame = requestAnimationFrame(() => {
       const container = canvasRef.current;
       if (!container) return;
@@ -439,7 +449,7 @@ export function JsonGridView({
       container.scrollTop += nodeCenterY - containerCenterY;
     });
     return () => cancelAnimationFrame(frame);
-  }, [jsonCode]);
+  }, [parsedData]);
 
   const focusNodeById = (nodeId: string) => {
     if (!canvasRef.current) return;
