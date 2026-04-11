@@ -1041,16 +1041,16 @@ function NodeTree({
                       className="relative flex min-w-[200px] shrink-0 flex-col items-center px-8"
                     >
                       {isFirst ? (
-                        <div className="node-connector-h absolute top-0 right-0 left-[calc(50%-1px)]" />
+                        <div className="node-connector-h node-connector-h-reverse absolute top-0 right-0 left-[calc(50%-1px)]" />
                       ) : isLast ? (
                         <div className="node-connector-h absolute top-0 right-[calc(50%-1px)] left-0" />
                       ) : isExactCenter ? (
                         <>
-                          <div className="node-connector-h absolute top-0 right-[calc(50%-1px)] left-0" />
+                          <div className="node-connector-h node-connector-h-reverse absolute top-0 right-[calc(50%-1px)] left-0" />
                           <div className="node-connector-h absolute top-0 right-0 left-[calc(50%-1px)]" />
                         </>
                       ) : isLeftOfCenter ? (
-                        <div className="node-connector-h absolute top-0 right-0 left-0" />
+                        <div className="node-connector-h node-connector-h-reverse absolute top-0 right-0 left-0" />
                       ) : (
                         <div className="node-connector-h absolute top-0 right-0 left-0" />
                       )}
@@ -1108,16 +1108,16 @@ function NodeTree({
                       className="relative flex min-h-[200px] shrink-0 flex-row items-center py-8"
                     >
                       {isFirst ? (
-                        <div className="node-connector-v absolute top-[calc(50%-1px)] bottom-0 left-0" />
+                        <div className="node-connector-v node-connector-v-reverse absolute top-[calc(50%-1px)] bottom-0 left-0" />
                       ) : isLast ? (
                         <div className="node-connector-v absolute top-0 bottom-[calc(50%-1px)] left-0" />
                       ) : isExactCenter ? (
                         <>
-                          <div className="node-connector-v absolute top-0 bottom-[calc(50%-1px)] left-0" />
+                          <div className="node-connector-v node-connector-v-reverse absolute top-0 bottom-[calc(50%-1px)] left-0" />
                           <div className="node-connector-v absolute top-[calc(50%-1px)] bottom-0 left-0" />
                         </>
                       ) : isLeftOfCenter ? (
-                        <div className="node-connector-v absolute top-0 bottom-0 left-0" />
+                        <div className="node-connector-v node-connector-v-reverse absolute top-0 bottom-0 left-0" />
                       ) : (
                         <div className="node-connector-v absolute top-0 bottom-0 left-0" />
                       )}

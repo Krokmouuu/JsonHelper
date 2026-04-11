@@ -39,6 +39,10 @@ button:disabled {
   animation: connectorFlowHorizontal 1s linear infinite;
 }
 
+.node-connector-h-reverse {
+  animation-direction: reverse;
+}
+
 @media (prefers-reduced-motion: reduce) {
   .node-connector-h,
   .node-connector-v {
@@ -55,6 +59,10 @@ button:disabled {
   );
   background-size: 100% 12px;
   animation: connectorFlowVertical 1s linear infinite;
+}
+
+.node-connector-v-reverse {
+  animation-direction: reverse;
 }
 
 .color-input-inline {
