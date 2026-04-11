@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from "react";
+import React, { useContext, useEffect, useMemo, useRef, useState } from "react";
 import {
   Search,
   Undo,
@@ -224,6 +224,48 @@ function defaultValueForType(type: AddPropertyType): unknown {
   }
 }
 
+const CanvasRefContext = React.createContext<React.RefObject<HTMLDivElement | null>>({ current: null });
+
+function VirtualBranch({ children }: React.PropsWithChildren) {
+  const canvasRef = useContext(CanvasRefContext);
+  const ref = useRef<HTMLDivElement>(null);
+  const sizeRef = useRef<{ w: number; h: number } | null>(null);
+  const [visible, setVisible] = useState(true);
+
+  useEffect(() => {
+    const el = ref.current;
+    const root = canvasRef.current;
+    if (!el || !root) return;
+
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting) {
+          setVisible(true);
+        } else {
+          sizeRef.current = { w: el.offsetWidth, h: el.offsetHeight };
+          setVisible(false);
+        }
+      },
+      { root, rootMargin: "600px" },
+    );
+    observer.observe(el);
+    return () => observer.disconnect();
+  }, [canvasRef]);
+
+  return (
+    <div
+      ref={ref}
+      style={
+        !visible && sizeRef.current
+          ? { width: sizeRef.current.w, height: sizeRef.current.h }
+          : undefined
+      }
+    >
+      {visible ? children : null}
+    </div>
+  );
+}
+
 export function JsonGridView({
   jsonCode,
   setJsonCode,
@@ -265,20 +307,22 @@ export function JsonGridView({
   >(null);
   const [arrayItemType, setArrayItemType] = useState<AddPropertyType>("string");
 
-  let parsedData: any = null;
-  let errorMsg = "";
-  try {
-    parsedData = JSON.parse(jsonCode);
-  } catch (e: any) {
-    errorMsg = "Invalid JSON";
-  }
+  const { parsedData, errorMsg } = useMemo(() => {
+    try {
+      return { parsedData: JSON.parse(jsonCode) as unknown, errorMsg: "" };
+    } catch {
+      return { parsedData: null, errorMsg: "Invalid JSON" };
+    }
+  }, [jsonCode]);
 
   const updateByPath = (path: PathSegment[], value: unknown) => {
+    if (!parsedData) return;
     const updated = setAtPath(parsedData, path, value);
     setJsonCode(toJsonString(updated));
   };
 
   const deleteByPath = (path: PathSegment[]) => {
+    if (!parsedData) return;
     const updated = removeAtPath(parsedData, path);
     setJsonCode(toJsonString(updated));
   };
@@ -330,11 +374,11 @@ export function JsonGridView({
   };
 
   const zoomIn = () => {
-    setZoom((prev) => Math.min(2, +(prev + 0.1).toFixed(2)));
+    setZoom((prev) => Math.min(3, +(prev + 0.1).toFixed(2)));
   };
 
   const zoomOut = () => {
-    setZoom((prev) => Math.max(0.5, +(prev - 0.1).toFixed(2)));
+    setZoom((prev) => Math.max(0.1, +(prev - 0.1).toFixed(2)));
   };
 
   const resetZoom = () => {
@@ -357,9 +401,9 @@ export function JsonGridView({
     setZoom((prev) => {
       const intensity = isPinchGesture ? 0.03 : 0.08;
       const next = Math.max(
-        0.5,
+        0.1,
         Math.min(
-          2,
+          3,
           +(prev + (event.deltaY < 0 ? intensity : -intensity)).toFixed(2),
         ),
       );
@@ -634,27 +678,29 @@ export function JsonGridView({
         onWheel={handleWheelZoom}
         className={`absolute inset-0 overflow-auto z-10 p-24 pl-32 custom-scrollbar ${isPanning ? "cursor-grabbing select-none" : "cursor-grab"}`}
       >
-        <div
-          className="min-w-max min-h-max pt-16 pl-[55vw] pr-[55vw] pb-[55vh] origin-top-left transition-transform duration-200 ease-out"
-          style={{ transform: `scale(${zoom})` }}
-        >
-          {errorMsg ? (
-            <div className="text-red-500 font-mono">{errorMsg}</div>
-          ) : parsedData ? (
-            <NodeTree
-              data={parsedData}
-              name="root"
-              path={[]}
-              isRoot={true}
-              layoutDirection={treeLayout}
-              searchTerm={activeSearch}
-              onFocusNode={focusNodeForEditing}
-              onEdit={updateByPath}
-              onDelete={deleteByPath}
-              onAdd={addOnPath}
-            />
-          ) : null}
-        </div>
+        <CanvasRefContext.Provider value={canvasRef}>
+          <div
+            className="min-w-max min-h-max pt-16 pl-[55vw] pr-[55vw] pb-[55vh] origin-top-left"
+            style={{ transform: `scale(${zoom})` }}
+          >
+            {errorMsg ? (
+              <div className="text-red-500 font-mono">{errorMsg}</div>
+            ) : parsedData ? (
+              <NodeTree
+                data={parsedData}
+                name="root"
+                path={[]}
+                isRoot={true}
+                layoutDirection={treeLayout}
+                searchTerm={activeSearch}
+                onFocusNode={focusNodeForEditing}
+                onEdit={updateByPath}
+                onDelete={deleteByPath}
+                onAdd={addOnPath}
+              />
+            ) : null}
+          </div>
+        </CanvasRefContext.Provider>
       </div>
 
       {/* Zoom Controls */}
@@ -965,20 +1011,22 @@ function NodeTree({
             {hasSingleChild ? (
               <>
                 <div className="node-connector-v h-16 shrink-0" />
-                <NodeTree
-                  data={children[0].value}
-                  name={children[0].name}
-                  path={children[0].path}
-                  layoutDirection={layoutDirection}
-                  searchTerm={searchTerm}
-                  onFocusNode={onFocusNode}
-                  onEdit={onEdit}
-                  onDelete={onDelete}
-                  onAdd={onAdd}
-                />
+                <VirtualBranch>
+                  <NodeTree
+                    data={children[0].value}
+                    name={children[0].name}
+                    path={children[0].path}
+                    layoutDirection={layoutDirection}
+                    searchTerm={searchTerm}
+                    onFocusNode={onFocusNode}
+                    onEdit={onEdit}
+                    onDelete={onDelete}
+                    onAdd={onAdd}
+                  />
+                </VirtualBranch>
               </>
             ) : (
-              <div className="flex gap-0 relative">
+              <div className="flex flex-nowrap justify-center gap-0 relative">
                 {children.map((child, idx) => {
                   const isFirst = idx === 0;
                   const isLast = idx === children.length - 1;
@@ -990,34 +1038,36 @@ function NodeTree({
                   return (
                     <div
                       key={idx}
-                      className="relative flex min-w-[200px] flex-1 flex-col items-center px-8"
+                      className="relative flex min-w-[200px] shrink-0 flex-col items-center px-8"
                     >
                       {isFirst ? (
-                        <div className="node-connector-h node-connector-h-reverse absolute top-0 right-0 left-[calc(50%-1px)]" />
+                        <div className="node-connector-h absolute top-0 right-0 left-[calc(50%-1px)]" />
                       ) : isLast ? (
                         <div className="node-connector-h absolute top-0 right-[calc(50%-1px)] left-0" />
                       ) : isExactCenter ? (
                         <>
-                          <div className="node-connector-h node-connector-h-reverse absolute top-0 right-[calc(50%-1px)] left-0" />
+                          <div className="node-connector-h absolute top-0 right-[calc(50%-1px)] left-0" />
                           <div className="node-connector-h absolute top-0 right-0 left-[calc(50%-1px)]" />
                         </>
                       ) : isLeftOfCenter ? (
-                        <div className="node-connector-h node-connector-h-reverse absolute top-0 right-0 left-0" />
+                        <div className="node-connector-h absolute top-0 right-0 left-0" />
                       ) : (
                         <div className="node-connector-h absolute top-0 right-0 left-0" />
                       )}
                       <div className="node-connector-v h-16 shrink-0" />
-                      <NodeTree
-                        data={child.value}
-                        name={child.name}
-                        path={child.path}
-                        layoutDirection={layoutDirection}
-                        searchTerm={searchTerm}
-                        onFocusNode={onFocusNode}
-                        onEdit={onEdit}
-                        onDelete={onDelete}
-                        onAdd={onAdd}
-                      />
+                      <VirtualBranch>
+                        <NodeTree
+                          data={child.value}
+                          name={child.name}
+                          path={child.path}
+                          layoutDirection={layoutDirection}
+                          searchTerm={searchTerm}
+                          onFocusNode={onFocusNode}
+                          onEdit={onEdit}
+                          onDelete={onDelete}
+                          onAdd={onAdd}
+                        />
+                      </VirtualBranch>
                     </div>
                   );
                 })}
@@ -1029,19 +1079,21 @@ function NodeTree({
             <div className="node-connector-h w-16 shrink-0 self-center" />
 
             {hasSingleChild ? (
-              <NodeTree
-                data={children[0].value}
-                name={children[0].name}
-                path={children[0].path}
-                layoutDirection={layoutDirection}
-                searchTerm={searchTerm}
-                onFocusNode={onFocusNode}
-                onEdit={onEdit}
-                onDelete={onDelete}
-                onAdd={onAdd}
-              />
+              <VirtualBranch>
+                <NodeTree
+                  data={children[0].value}
+                  name={children[0].name}
+                  path={children[0].path}
+                  layoutDirection={layoutDirection}
+                  searchTerm={searchTerm}
+                  onFocusNode={onFocusNode}
+                  onEdit={onEdit}
+                  onDelete={onDelete}
+                  onAdd={onAdd}
+                />
+              </VirtualBranch>
             ) : (
-              <div className="relative flex flex-col gap-0">
+              <div className="relative flex flex-col flex-nowrap items-center gap-0">
                 {children.map((child, idx) => {
                   const isFirst = idx === 0;
                   const isLast = idx === children.length - 1;
@@ -1053,34 +1105,36 @@ function NodeTree({
                   return (
                     <div
                       key={idx}
-                      className="relative flex min-h-[200px] flex-1 flex-row items-center py-8"
+                      className="relative flex min-h-[200px] shrink-0 flex-row items-center py-8"
                     >
                       {isFirst ? (
-                        <div className="node-connector-v node-connector-v-reverse absolute top-[calc(50%-1px)] bottom-0 left-0" />
+                        <div className="node-connector-v absolute top-[calc(50%-1px)] bottom-0 left-0" />
                       ) : isLast ? (
                         <div className="node-connector-v absolute top-0 bottom-[calc(50%-1px)] left-0" />
                       ) : isExactCenter ? (
                         <>
-                          <div className="node-connector-v node-connector-v-reverse absolute top-0 bottom-[calc(50%-1px)] left-0" />
+                          <div className="node-connector-v absolute top-0 bottom-[calc(50%-1px)] left-0" />
                           <div className="node-connector-v absolute top-[calc(50%-1px)] bottom-0 left-0" />
                         </>
                       ) : isLeftOfCenter ? (
-                        <div className="node-connector-v node-connector-v-reverse absolute top-0 bottom-0 left-0" />
+                        <div className="node-connector-v absolute top-0 bottom-0 left-0" />
                       ) : (
                         <div className="node-connector-v absolute top-0 bottom-0 left-0" />
                       )}
                       <div className="node-connector-h w-16 shrink-0 self-center" />
-                      <NodeTree
-                        data={child.value}
-                        name={child.name}
-                        path={child.path}
-                        layoutDirection={layoutDirection}
-                        searchTerm={searchTerm}
-                        onFocusNode={onFocusNode}
-                        onEdit={onEdit}
-                        onDelete={onDelete}
-                        onAdd={onAdd}
-                      />
+                      <VirtualBranch>
+                        <NodeTree
+                          data={child.value}
+                          name={child.name}
+                          path={child.path}
+                          layoutDirection={layoutDirection}
+                          searchTerm={searchTerm}
+                          onFocusNode={onFocusNode}
+                          onEdit={onEdit}
+                          onDelete={onDelete}
+                          onAdd={onAdd}
+                        />
+                      </VirtualBranch>
                     </div>
                   );
                 })}
