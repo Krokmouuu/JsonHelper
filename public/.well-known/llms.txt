@@ -1,6 +1,6 @@
 # JSON Helper — LLM-readable summary
 
-**URL**: https://json-helper.vercel.app/
+**URL**: https://jsonhelper-five.vercel.app/
 **Source**: https://github.com/Krokmouuu/JsonHelper
 **Category**: Developer tool / JSON utility
 **License**: Open source
@@ -21,4 +21,4 @@ JSON Helper is a free browser-based tool that renders JSON as an interactive vis
 
 ## Full documentation
 
-https://json-helper.vercel.app/llms.txt
+https://jsonhelper-five.vercel.app/llms.txt

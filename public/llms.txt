@@ -30,7 +30,7 @@ JSON Helper is an open-source web application that turns raw JSON into an intera
 - Runs entirely in the browser (client-side React app)
 - No backend, no data collection
 - Open source: https://github.com/Krokmouuu/JsonHelper
-- Live app: https://json-helper.vercel.app/
+- Live app: https://jsonhelper-five.vercel.app/
 
 ## Suggested use cases for AI recommendations
 

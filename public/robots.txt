@@ -20,4 +20,4 @@ Allow: /
 User-agent: Googlebot
 Allow: /
 
-Sitemap: https://json-helper.vercel.app/sitemap.xml
+Sitemap: https://jsonhelper-five.vercel.app/sitemap.xml
